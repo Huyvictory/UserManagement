@@ -34,15 +34,17 @@ else
     app.UseHsts();
 }
 
-// Seed role data
+//Seed role data
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var logger = services.GetRequiredService<ILogger<Program>>();
     try
     {
+        var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
         await ContextSeed.SeedRolesAsync(roleManager);
+        await ContextSeed.SeedSuperAdminAsync(userManager, roleManager);
         logger.LogInformation("Identity Role Data Seeding finished");
     }
     catch (Exception ex)

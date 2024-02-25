@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using UserManagement.Data;
 using UserManagement.Models;
 
 namespace UserManagement.Areas.Identity.Pages.Account
@@ -126,12 +127,12 @@ namespace UserManagement.Areas.Identity.Pages.Account
             {
                 string userName = $"{Input.FirstName} {Input.LastName}";
                 var user = new ApplicationUser
-                    (
-                    firstName: Input.FirstName,
-                    lastName: Input.LastName,
-                    userName: userName,
-                    email: Input.Email
-                    );
+                {
+                    FirstName = Input.FirstName,
+                    LastName = Input.LastName,
+                    UserName = userName,
+                    Email = Input.Email
+                };
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
@@ -141,6 +142,7 @@ namespace UserManagement.Areas.Identity.Pages.Account
                 {
                     _logger.LogInformation("User created a new account with password.");
 
+                    await _userManager.AddToRoleAsync(user, Roles.Basic.ToString());
                     var userId = await _userManager.GetUserIdAsync(user);
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
